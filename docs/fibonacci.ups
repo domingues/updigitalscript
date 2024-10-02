@@ -1,0 +1,15 @@
+create function fibonacci(n number) return number is
+begin
+    if n <= 1 then
+        return n;
+    else
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    end if;
+end;
+
+begin
+    for i in 0 .. 20
+        loop
+            dbms_output.put_line('F(' || i || ') = ' || fibonacci(i));
+        end loop;
+end;

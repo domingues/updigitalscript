@@ -1,0 +1,106 @@
+<!doctype html>
+<meta charset="utf-8">
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="./css/normalize.css">
+    <link rel="stylesheet" href="./css/css.css">
+
+    <title>[Ups] UPdigitalScript - Playground</title>
+
+    <link rel="modulepreload" href="./js/UPdigitalScript-bundle.js">
+    <script type="module">
+        import UPdigitalScriptEnvironment from "./js/UPdigitalScript-bundle.js";
+
+        const ups_env = new UPdigitalScriptEnvironment();
+        ups_env.init_browser();
+        globalThis.ups_env = ups_env;
+    </script>
+
+    <link rel="preload" href="./editor.ups" as="fetch">
+    <script src="./editor.ups" type="text/updigitalscript"></script>
+
+    <link rel="preload" href="./mandelbrot_set.ups" as="fetch">
+    <link rel="preload" href="./fibonacci.ups" as="fetch">
+    <script type="text/updigitalscript">
+        create package body dbms_output is
+            procedure put(
+                value string
+            ) is
+            begin
+                editor.console.setValue(editor.console.getValue() || value, -1);
+            end;
+
+            procedure put_line(
+                value string
+            ) is
+            begin
+                editor.console.setValue(editor.console.getValue() || value || '\n', -1);
+            end;
+        end;
+
+        create procedure clear is
+        begin
+            editor.source.setValue('', -1);
+        end;
+
+        -- load example script
+        create procedure load_example(path string) is
+            function response_callback(response string) RETURN Promise is
+            begin
+                if response.ok then
+                    return response.text();
+                end if;
+            end;
+            procedure text_callback(script string) is
+            begin
+                if script then
+                    editor.source.setValue(script, -1);
+                end if;
+            end;
+        begin
+            js.fetch(path)
+                .then(response_callback)
+                .then(text_callback);
+        end;
+
+        call load_example('./mandelbrot_set.ups');
+    </script>
+</head>
+<body>
+<h1>[Ups] UPDigitalScript – Use PL/SQL instead of JavaScript <small>(intended for senior professional teams
+    only)</small></h1>
+<div class="promo">
+    <b>Check <a href="https://github.com/domingues/updigitalscript">why do you need this here</a>!</b>
+    <b>Want a full
+        example? Check the <a href="https://github.com/domingues/updigitalscript/blob/master/site/index.html">source
+            code of
+            this page</a>!</b>
+</div>
+<div class="tabs">
+    <div class="tab">
+        <div class="source-header">
+            <h3>UPdigitalScript</h3>
+            <div>
+                <button onclick="ups.load_example('./mandelbrot_set.ups')">Load mandelbrot_set.ups</button>
+                <button onclick="ups.load_example('./fibonacci.ups')">Load fibonacci.ups</button>
+                <button onclick="ups.clear()">Clear</button>
+            </div>
+        </div>
+        <pre id="source" class="code"></pre>
+    </div>
+    <div class="tab">
+        <h3>Intermediate</h3>
+        <pre id="output" class="code"></pre>
+    </div>
+    <div class="tab">
+        <h3>Console</h3>
+        <pre id="console" class="code"></pre>
+    </div>
+</div>
+
+<script src="./js/ace/ace.js"></script>
+<script src="./js/ace/mode-plsql.js"></script>
+<script src="./js/ace/mode-javascript.js"></script>
+<script src="./js/beautify.min.js"></script>
+</body>
+</html>

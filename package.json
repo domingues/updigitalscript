@@ -1,0 +1,24 @@
+{
+  "name": "updigitalscript",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "download-grammar": "sh ./scripts/download-grammar.sh",
+    "download-js-aux-files": "sh ./scripts/download-js-aux-files.sh",
+    "gen-js-grammar": "sh ./scripts/gen-js-grammar.sh",
+    "compile-grammar": "tsc",
+    "init": "npm run download-grammar && npm run gen-js-grammar && npm run download-js-aux-files && npm run compile-grammar",
+    "build": "rollup -c"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "antlr4ng": "^3.0.5",
+    "antlr4ng-cli": "^2.0.0",
+    "prettier": "^3.3.2",
+    "rollup": "^4.18.0",
+    "typescript": "^5.6.2"
+  }
+}

@@ -1,0 +1,60 @@
+-- Mandelbrot set in UPdigitalScript
+
+declare
+    max_iterations  pls_integer := 50;
+    width           pls_integer := 80;  -- output width (number of characters per row)
+    height          pls_integer := 40;  -- output height (number of rows)
+    real_min        number := -2.0;     -- min real value
+    real_max        number := 1.0;      -- max real value
+    imag_min        number := -1.0;     -- min imaginary value
+    imag_max        number := 1.0;      -- max imaginary value
+    real_factor     number;             -- scale factor for real part
+    imag_factor     number;             -- scale factor for imaginary part
+    x0              number;             -- current real part (c_real)
+    y0              number;             -- current imaginary part (c_imag)
+    x               number;             -- z_real in mandelbrot calculation
+    y               number;             -- z_imag in mandelbrot calculation
+    xtemp           number;             -- temporary variable to hold new real part
+    iteration       pls_integer;        -- number of iterations for mandelbrot calculation
+    i               pls_integer;        -- loop counter for columns
+    j               pls_integer;        -- loop counter for rows
+    escape_radius   number := 4.0;      -- escape threshold (|z|^2 > escape_radius means point escapes)
+    line_buffer     varchar2(4000);     -- buffer for a single line of the output
+
+begin
+    -- pre-calculate the scaling factors to map the complex plane to the screen
+    real_factor := (real_max - real_min) / width;
+    imag_factor := (imag_max - imag_min) / height;
+
+    -- loop over each row of the output (imaginary axis)
+    for j in 0 .. height - 1 loop
+            y0 := imag_min + j * imag_factor;
+            line_buffer := '';  -- reset the buffer for each new row
+
+            -- loop over each column of the output (real axis)
+            for i in 0 .. width - 1 loop
+                    x0 := real_min + i * real_factor;
+                    x := 0.0;
+                    y := 0.0;
+                    iteration := 0;
+
+                    -- iterate the mandelbrot formula until the point escapes or we hit the max iterations
+                    while (x * x + y * y <= escape_radius) and (iteration < max_iterations) loop
+                            xtemp := x * x - y * y + x0;
+                            y := 2 * x * y + y0;
+                            x := xtemp;
+                            iteration := iteration + 1;
+                        end loop;
+
+                    -- append the appropriate character to the line buffer
+                    if iteration = max_iterations then
+                        line_buffer := line_buffer || '#';  -- inside the mandelbrot set
+                    else
+                        line_buffer := line_buffer || ' ';  -- outside the mandelbrot set
+                    end if;
+                end loop;
+
+            -- output the current line
+            dbms_output.put_line(line_buffer);
+        end loop;
+end;

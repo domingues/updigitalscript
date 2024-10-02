@@ -1,0 +1,45 @@
+create package body editor is
+    type ace_settings is record
+                         (
+                             "mode"              string,
+                             readOnly            boolean,
+                             highlightActiveLine boolean,
+                             highlightGutterLine boolean,
+                             useWorker           boolean
+                         );
+
+    source Ace := js.ace.edit('source', ace_settings('ace/mode/plsql'));
+    intermediate Ace := js.ace.edit('output', ace_settings('ace/mode/javascript', true, false, false, false));
+    console Ace := js.ace.edit('console', ace_settings(null, true, false, false));
+
+    procedure callback is
+    declare
+        procedure async_1 is
+            intermediate_code string;
+            procedure async_2 is
+            begin
+                intermediate.setValue(js.js_beautify(intermediate_code), -1);
+            end;
+        begin
+            intermediate_code := js.ups_env.compile_to_js(source.getValue());
+            js.setTimeout(async_2, 0);
+            js.ups_env.eval_js(intermediate_code);
+        end;
+    begin
+        console.setValue('', -1);
+        if source.getValue() = '' then
+            intermediate.setValue('', -1);
+            return;
+        end if;
+        js.setTimeout(async_1, 0);
+    exception
+        when js.ups_env.SyntaxError then
+            intermediate.setValue(sqlerrm.message, -1);
+        when others then
+            console.setValue(sqlerrm.message, -1);
+    end;
+begin
+    intermediate.renderer."$cursorLayer".element.style.display := 'none';
+    console.renderer."$cursorLayer".element.style.display := 'none';
+    source."on"('change', callback);
+end;
