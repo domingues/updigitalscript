@@ -24,6 +24,11 @@ create package body editor is
             intermediate_code := js.ups_env.compile_to_js(source.getValue());
             js.setTimeout(async_2, 0);
             js.ups_env.eval_js(intermediate_code);
+        exception
+            when js.ups_env.SyntaxError then
+                intermediate.setValue(sqlerrm.message, -1);
+            when others then
+                console.setValue(sqlerrm.message, -1);
         end;
     begin
         console.setValue('', -1);
@@ -32,11 +37,6 @@ create package body editor is
             return;
         end if;
         js.setTimeout(async_1, 0);
-    exception
-        when js.ups_env.SyntaxError then
-            intermediate.setValue(sqlerrm.message, -1);
-        when others then
-            console.setValue(sqlerrm.message, -1);
     end;
 begin
     intermediate.renderer."$cursorLayer".element.style.display := 'none';
