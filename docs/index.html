@@ -63,7 +63,10 @@
                 .then(text_callback);
         end;
 
-        call load_example('./mandelbrot_set.ups');
+        begin
+            load_example('./mandelbrot_set.ups');
+            js.document.querySelector('.loading').style.display := 'none';
+        end;
     </script>
 </head>
 <body>
@@ -77,6 +80,9 @@
             this page</a>!</b>
 </div>
 <div class="tabs">
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
     <div class="tab">
         <div class="source-header">
             <h3>UPdigitalScript</h3>
